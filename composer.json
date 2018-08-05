@@ -1,0 +1,8 @@
+{
+    "name": "theopenmedium/parsedownhayflavored",
+    "description": "Parsedown flavored for the HAY project.",
+    "require": {
+        "erusev/parsedown": "^1.7"
+    },
+    "license": "MIT"
+}
