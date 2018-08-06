@@ -2,7 +2,11 @@
     "name": "theopenmedium/parsedownhayflavored",
     "description": "Parsedown flavored for the HAY project.",
     "require": {
-        "erusev/parsedown": "^1.7"
+        "erusev/parsedown": "^1.7",
+        "erusev/parsedown-extra": "^0.7.1"
     },
-    "license": "MIT"
+    "license": "MIT",
+    "autoload": {
+        "files": ["ParsedownHAYFlavored.php"]
+    }
 }
