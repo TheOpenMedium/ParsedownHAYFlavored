@@ -1,7 +1,7 @@
 <?php
 class ParsedownHAYFlavored extends ParsedownExtra
 {
-    const version = '0.1.1';
+    const version = '0.1.2';
 
     function __construct()
     {
@@ -12,12 +12,12 @@ class ParsedownHAYFlavored extends ParsedownExtra
         $this->inlineMarkerList .= '[';
     }
 
-    protected function blockList($Line)
+    protected function blockList($Line, ?array $CurrentBlock = NULL)
     {
         if (preg_match('/^- ?\[([xX ]?)\](?::["\'](.+)["\'])? ?(.*)$/m', $Line['text']) || preg_match('/^- ?\(([xX ]?)\)(?::["\'](.+)["\'])? ?(.*)$/m', $Line['text'])) {
             return;
         } else {
-            return parent::blockList($Line);
+            return parent::blockList($Line, $CurrentBlock);
         }
     }
 
@@ -80,24 +80,13 @@ class ParsedownHAYFlavored extends ParsedownExtra
     protected function inlineSurvey($excerpt)
     {
         if (preg_match("/\[survey ?(\d+) ?\/\]/i", $excerpt['text'], $matches)) {
-            $localeList = preg_split('#[,;-]#', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+            $random = md5(rand());
 
-            foreach ($localeList as $locale) {
-                if ($locale == 'en' || $locale == 'fr') {
-                    $l = $locale;
-                    break;
-                }
-            }
-            if (empty($l)) {
-                $l = 'en';
-            }
-
-            $root = (!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . ':' . $_SERVER['SERVER_PORT'] . '/';
-            $url = $root . $l . '/display/survey/' . $matches[1];
             $result = array(
                 'extent' => strlen($matches[0]),
                 'element' => array(
-                    'rawHtml' => file_get_contents($url)
+                    'allowRawHtmlInSafeMode' => true,
+                    'rawHtml' => "<script id=\"" . $random . "\">getSurvey(" . $matches[1] . ", \"" . $random . "\")</script>"
                 )
             );
 
