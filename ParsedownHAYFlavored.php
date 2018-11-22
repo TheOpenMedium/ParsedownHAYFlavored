@@ -1,15 +1,19 @@
 <?php
 class ParsedownHAYFlavored extends ParsedownExtra
 {
-    const version = '0.1.2';
+    const version = '0.1.4';
 
     function __construct()
     {
         $this->InlineTypes['-'][]= 'Checkbox';
         $this->InlineTypes['-'][]= 'Radio';
         $this->InlineTypes['['][]= 'Survey';
+        $this->InlineTypes['$'][] = 'InlineLaTeX';
+        $this->BlockTypes['$'][] = 'LaTeX';
+        $this->BlockTypes['['][] = 'LaTeX';
         $this->inlineMarkerList .= '-';
         $this->inlineMarkerList .= '[';
+        $this->inlineMarkerList .= '$';
     }
 
     protected function blockList($Line, ?array $CurrentBlock = NULL)
@@ -79,7 +83,7 @@ class ParsedownHAYFlavored extends ParsedownExtra
 
     protected function inlineSurvey($excerpt)
     {
-        if (preg_match("/\[survey ?(\d+) ?\/\]/i", $excerpt['text'], $matches)) {
+        if (preg_match("/^\[survey ?(\d+) ?\/\]/i", $excerpt['text'], $matches)) {
             $random = md5(rand());
 
             $result = array(
@@ -92,5 +96,71 @@ class ParsedownHAYFlavored extends ParsedownExtra
 
             return $result;
         }
+    }
+
+    protected function inlineInlineLaTeX($excerpt)
+    {
+        if (preg_match('/^\$\$(.*)\$\$/', $excerpt['text'], $matches))
+        {
+            return array(
+                'extent' => strlen($matches[0]),
+                'element' => array(
+                    'name' => 'span',
+                    'text' => $matches[1],
+                    'attributes' => array(
+                        'class' => 'katexBlock',
+                        'displayMode' => 'false'
+                    )
+                )
+            );
+        }
+    }
+
+    protected function blockLaTeX($line, $block)
+    {
+        if (preg_match('/^(\$\$\$|\[LaTeX\])/i', $line['text'], $matches))
+        {
+            return array(
+                'char' => $line['text'][0],
+                'element' => array(
+                    'name' => 'div',
+                    'text' => '',
+                    'attributes' => array(
+                        'class' => 'katexBlock',
+                        'displayMode' => 'true'
+                    )
+                )
+            );
+        }
+    }
+
+    protected function blockLaTeXContinue($line, $block)
+    {
+        if (isset($block['complete']))
+        {
+            return;
+        }
+
+        if (isset($block['interrupted']))
+        {
+            $block['element']['text'] .= "\n";
+            unset($block['interrupted']);
+        }
+
+        if (preg_match('/^(\$\$\$|\[\/LaTeX\])/i', $line['text']))
+        {
+            $block['element']['text'] = substr($block['element']['text'], 1);
+            $block['complete'] = true;
+            return $block;
+        }
+
+        $block['element']['text'] .= "\n" . $line['body'];
+
+        return $block;
+    }
+
+    protected function blockLaTeXComplete($block)
+    {
+        return $block;
     }
 }
