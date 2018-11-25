@@ -1,7 +1,7 @@
 <?php
 class ParsedownHAYFlavored extends ParsedownExtra
 {
-    const version = '0.1.4';
+    const version = '0.1.5';
 
     function __construct()
     {
@@ -100,7 +100,7 @@ class ParsedownHAYFlavored extends ParsedownExtra
 
     protected function inlineInlineLaTeX($excerpt)
     {
-        if (preg_match('/^\$\$(.*)\$\$/', $excerpt['text'], $matches))
+        if (preg_match('/^\$([^\$]*)\$/', $excerpt['text'], $matches))
         {
             return array(
                 'extent' => strlen($matches[0]),
