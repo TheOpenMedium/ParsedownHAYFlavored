@@ -83,14 +83,14 @@ class ParsedownHAYFlavored extends ParsedownExtra
 
     protected function inlineSurvey($excerpt)
     {
-        if (preg_match("/^\[survey ?(\d+) ?\/\]/i", $excerpt['text'], $matches)) {
+        if (preg_match("/^\[survey ?([a-zA-Z0-9-_]{10}) ?\/\]/i", $excerpt['text'], $matches)) {
             $random = md5(rand());
 
             $result = array(
                 'extent' => strlen($matches[0]),
                 'element' => array(
                     'allowRawHtmlInSafeMode' => true,
-                    'rawHtml' => "<script id=\"" . $random . "\">getSurvey(" . $matches[1] . ", \"" . $random . "\")</script>"
+                    'rawHtml' => "<script id=\"" . $random . "\">getSurvey(\"" . $matches[1] . "\", \"" . $random . "\")</script>"
                 )
             );
 
