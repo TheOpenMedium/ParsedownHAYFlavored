@@ -9,11 +9,13 @@ class ParsedownHAYFlavored extends ParsedownExtra
         $this->InlineTypes['-'][]= 'Radio';
         $this->InlineTypes['['][]= 'Survey';
         $this->InlineTypes['$'][] = 'InlineLaTeX';
+        $this->InlineTypes['/'][] = 'UserTag';
         $this->BlockTypes['$'][] = 'LaTeX';
         $this->BlockTypes['['][] = 'LaTeX';
         $this->inlineMarkerList .= '-';
         $this->inlineMarkerList .= '[';
         $this->inlineMarkerList .= '$';
+        $this->inlineMarkerList .= '/';
     }
 
     protected function blockList($Line, ?array $CurrentBlock = NULL)
@@ -110,6 +112,23 @@ class ParsedownHAYFlavored extends ParsedownExtra
                     'attributes' => array(
                         'class' => 'katexBlock',
                         'displayMode' => 'false'
+                    )
+                )
+            );
+        }
+    }
+
+    protected function inlineUserTag($excerpt)
+    {
+        if (preg_match('/^\/[\w#@]+(?:[\w#@\/-]+)?/i', $excerpt['text'], $matches))
+        {
+            return array(
+                'extent' => strlen($matches[0]),
+                'element' => array(
+                    'name' => 'span',
+                    'text' => $matches[0],
+                    'attributes' => array(
+                        'class' => 'usertag_unprocessed'
                     )
                 )
             );
